@@ -1,0 +1,36 @@
+{
+    "name": "Video_Speed_Control",
+    "version": "1.0",
+    "description": "A simple video speed control",
+    "manifest_version": 3,
+    "offline_enabled": true,
+    "action": {
+        "default_title": "Click Me",
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "./images/image16.png",
+            "32": "./images/image32.png",
+            "48": "./images/image48.png",
+            "128": "./images/image128.png"
+        }
+    },
+    "icons": {
+        "16": "./images/image16.png",
+        "32": "./images/image32.png",
+        "48": "./images/image48.png",
+        "128": "./images/image128.png"
+    },
+    "permissions": [
+        "tabs",
+        "storage",
+        "activeTab",
+        "scripting",
+        "webNavigation"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "host_permissions": [
+        "https:/\/*\/*"
+    ]
+}

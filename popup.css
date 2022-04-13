@@ -1,0 +1,183 @@
+p {
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    width: 250px;
+    height: fit-content;
+    border: 1px solid black;
+    font-size: 0;
+}
+
+#nav #change,
+#nav #settings {
+    font-size: 1rem;
+    display: inline-block;
+    width: 50%;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    background-color: rgb(221, 221, 221);
+    cursor: pointer;
+}
+
+#nav #change:hover,
+#nav #settings:hover {
+    background-color: rgb(227, 227, 227);
+}
+
+#container {
+    background-color: rgb(92, 97, 101);
+    padding: 12px 12px 0 12px;
+    max-height: 500px;
+    overflow-y: scroll;
+    justify-content: space-around;
+    display: flex;
+    flex-wrap: wrap;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+#container button {
+    width: calc(calc(100% - 24px) / 3);
+    padding: 6px 0;
+    margin-bottom: 12px;
+    background: white;
+    border: 1px solid black;
+    border-radius: 2px;
+    box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.165);
+    cursor: pointer;
+}
+
+#container button:hover {
+    background: rgb(219, 219, 219);
+}
+
+#container button.active {
+    background: rgb(202, 202, 202);
+}
+
+#newSpeeds,
+#shortcuts {
+    margin-top: 12px;
+    width: 100%;
+}
+
+.speedContainer {
+    padding: 5px 0;
+    width: 98%;
+    height: fit-content;
+    font-size: 1rem;
+    margin: 0 auto;
+    background-color: rgb(248, 248, 248);
+    position: relative;
+    margin-bottom: 12px;
+}
+
+
+
+
+.cross {
+    width: 1rem;
+    height: 1rem;
+    background: rgb(0, 0, 0);
+    border-radius: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translate(50%, -50%);
+    cursor: pointer;
+    transition: background 0.15s ease-in;
+}
+
+.cross .l,
+.cross .r {
+    transition: background 0.15s ease-in;
+    position: absolute;
+    width: 2px;
+    height: calc(1rem - 3px);
+    background: rgb(224, 224, 224);
+    top: 50%;
+    left: 50%;
+}
+
+.cross:hover {
+    background: rgb(181, 3, 3);
+}
+
+.cross:hover .l,
+.cross:hover .r {
+    background: rgb(0, 0, 0);
+}
+
+
+
+.cross .l {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.cross .r {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+
+
+hr {
+    border: 1px solid rgb(145, 145, 145);
+    width: 70%;
+}
+
+h2 {
+    color: rgb(223, 223, 223);
+    width: 100%;
+    text-align: center;
+    font-size: 1.5rem;
+    margin: 10px 0 10px 0;
+}
+
+#addSpeed {
+    color: black;
+    font-size: 1rem;
+    margin-top: 15px;
+    padding-left: 8px;
+    width: 90%;
+}
+
+#speedForm #submitButton {
+    width: fit-content;
+    box-shadow: none;
+    align-self: left;
+    margin: 12px 0 5px 0;
+    padding: 5px 12px;
+}
+
+#restart {
+    margin: 15px 0 0 0;
+    background: rgb(198, 0, 0) !important;
+}
+
+#restart:hover {
+    background: rgb(228, 0, 0) !important;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgb(166, 166, 166);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgb(181, 181, 181);
+}
