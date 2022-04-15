@@ -1,18 +1,86 @@
 let speeds;
 let speed;
+let speedControls;
+let listenerControl;
+function main() {
+    chrome.storage.sync.get('speeds').then(val => {
+        if (val.speeds === undefined) {
+            chrome.storage.sync.set({ 'speeds': [2, 2.5, 3] })
+            speeds = [2, 2.5, 3];
+            setSpeeds(speeds);
+        }
+        else {
+            speeds = val.speeds;
+            setSpeeds(speeds);
+        }
+    })
+    visualizeActive();
+    speedControlsSetup();
+    navSetup();
+    setupAddingListeners();
+}
 
-chrome.storage.sync.get('speeds').then(val => {
-    if (val.speeds === undefined) {
-        chrome.storage.sync.set({ 'speeds': [2, 2.5, 3] })
-        speeds = [2, 2.5, 3];
-        setSpeeds(speeds);
+
+function setupAddingListeners() {
+    listenerControl = document.getElementById('addThis');
+    chrome.runtime.sendMessage('isThisIn', (response) => {
+        if (!checkResponse(response)) return;
+
+        let el;
+        el = document.createElement('div');
+        if (response.in === 'true') {
+            el.className = 'isIn';
+            el.innerText = 'Remove this site?';
+        }
+        else {
+            el.className = 'isNotIn';
+            el.innerText = 'Add this site?';
+        }
+        el.addEventListener('click', (_response) => {
+            chrome.runtime.sendMessage('addOrRemoveThisWebsite', (_response) => {
+                if (!checkResponse(_response)) return;
+                changeListenerText();
+            })
+        })
+        listenerControl.appendChild(el);
+    })
+}
+function changeListenerText() {
+    const el = document.querySelector('#addThis div');
+    if (el.className === 'isIn') {
+        el.className = 'isNotIn';
+        el.innerText = 'Add this site?';
     }
     else {
-        speeds = val.speeds;
-        setSpeeds(speeds);
+        el.className = 'isIn';
+        el.innerText = 'Remove this site?';
     }
-})
-visualizeActive();
+}
+
+function speedControlsSetup() {
+
+    speedControls = document.getElementsByClassName('speedControl');
+    for (let i = 0; i < speedControls.length; i++) {
+        speedControls[i].addEventListener('click', () => {
+            let nextSpeed = parseFloat((speedControls[i].innerText).split('x')[0]);
+            chrome.storage.sync.set({ 'speed': nextSpeed }).then(() => {
+                visualizeActive();
+            });
+            chrome.runtime.sendMessage('changedSpeed', (response) => {
+                if (!checkResponse(response)) return
+
+            })
+        })
+    }
+}
+function navSetup() {
+    document.getElementById("change").addEventListener('click', () => {
+        window.location.href = "popup.html";
+    })
+    document.getElementById("settings").addEventListener('click', () => {
+        window.location.href = "settings.html";
+    })
+}
 
 function visualizeActive() {
     chrome.storage.sync.get('speed').then(val => {
@@ -36,36 +104,30 @@ function visualizeActive() {
         }
     })
 }
-
-let speedControls = document.getElementsByClassName('speedControl');
-for (let i = 0; i < speedControls.length; i++) {
-    speedControls[i].addEventListener('click', () => {
-        let nextSpeed = parseFloat((speedControls[i].innerText).split('x')[0]);
-        chrome.storage.sync.set({ 'speed': nextSpeed }).then(() => {
-            visualizeActive();
-        });
-        chrome.runtime.sendMessage('changedSpeed')
-    })
-}
 function setSpeeds(speeds) {
     const container = document.getElementById('container');
     for (let i = 0; i < speeds.length; i++) {
         let el = document.createElement('button');
         el.className = 'speedControl';
-        el.innerText = `${speeds[i]}X`;
+        el.innerText = `${speeds[i]}x`;
         el.addEventListener('click', () => {
             let nextSpeed = speeds[i];
             chrome.storage.sync.set({ 'speed': nextSpeed }).then(() => {
                 visualizeActive();
             });
-            chrome.runtime.sendMessage('changedSpeed')
+            chrome.runtime.sendMessage('changedSpeed', (response) => {
+
+            })
         })
         container.appendChild(el);
     }
 }
-document.getElementById("change").addEventListener('click', () => {
-    window.location.href = "popup.html";
-})
-document.getElementById("settings").addEventListener('click', () => {
-    window.location.href = "settings.html";
-})
+function checkResponse(response) {
+    if (response.status !== 'ok') {
+        alert('Error getting response from extension. Please, restart the extension.');
+        return false;
+    }
+    return true;
+}
+
+main()

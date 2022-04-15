@@ -1,4 +1,3 @@
-
 let speeds;
 
 chrome.storage.sync.get('speeds').then(val => {

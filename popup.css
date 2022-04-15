@@ -5,6 +5,8 @@ p {
 
 html {
     font-size: 16px;
+    height: fit-content;
+    width: fit-content;
 }
 
 body {
@@ -72,6 +74,7 @@ body {
 .speedContainer {
     padding: 5px 0;
     width: 98%;
+    text-indent: 6px;
     height: fit-content;
     font-size: 1rem;
     margin: 0 auto;
@@ -164,6 +167,42 @@ h2 {
 
 #restart:hover {
     background: rgb(228, 0, 0) !important;
+}
+
+#addThis {
+    background-color: rgb(92, 97, 101);
+    padding: 5px 0 12px 0;
+}
+
+#addThis hr {
+    margin-bottom: 5px;
+}
+
+#addThis div {
+    font-weight: 500;
+    width: fit-content;
+    font-size: 1rem;
+    margin: 0 auto;
+    height: fit-content;
+    padding: 4px 8px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+#addThis .isIn {
+    background: rgb(198, 0, 0);
+}
+
+#addThis .isIn:hover {
+    background: rgb(228, 0, 0);
+}
+
+#addThis .isNotIn {
+    background: rgb(0, 189, 0);
+}
+
+#addThis .isNotIn:hover {
+    background: rgb(0, 138, 0);
 }
 
 ::-webkit-scrollbar {

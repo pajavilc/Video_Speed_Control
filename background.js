@@ -1,5 +1,6 @@
-let speed;
+let speed = 1;
 const playerMap = new Map();
+let whiteList;
 
 chrome.storage.sync.get('speed').then(val => {
     if (val.speed === undefined) {
@@ -11,40 +12,14 @@ chrome.storage.sync.get('speed').then(val => {
     }
     setIconText()
 })
+chrome.webNavigation.onCompleted.addListener(onSiteUpdated);
+chrome.webNavigation.onHistoryStateUpdated.addListener(onSiteUpdated);
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    processMessageData(message, sender).then(response => sendResponse(response));
+    return true;
+})
 
-
-let whiteList;
-const filter = {
-    url: [{
-        hostSuffix: ".youtube.com"
-    }]
-}
-
-chrome.webNavigation.onCompleted.addListener(async (tab) => {
-    if (playerMap.get(tab.tabId) == null) {
-        playerMap.set(tab.tabId, tab.tabId)
-    }
-    chrome.scripting.executeScript({
-        target: { tabId: tab.tabId },
-        function: setVideoSpeed,
-        args: [speed]
-    });
-}, filter);
-
-
-chrome.webNavigation.onHistoryStateUpdated.addListener(async (tab) => {
-    if (playerMap.get(tab.tabId) == null) {
-        playerMap.set(tab.tabId, tab.tabId)
-    }
-    chrome.scripting.executeScript({
-        target: { tabId: tab.tabId },
-        function: setVideoSpeed,
-        args: [speed]
-    });
-}, filter);
-
-
-chrome.runtime.onMessage.addListener(async (message) => {
+async function processMessageData(message, sender) {
     switch (message) {
         case 'changedSpeed': {
             await loadSpeed();
@@ -58,15 +33,48 @@ chrome.runtime.onMessage.addListener(async (message) => {
             }
             break;
         }
+        case 'isThisIn': {
+            let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            return { status: 'ok', in: (playerMap.get(tab.id) == null ? 'false' : 'true') }
+        }
+        case 'addOrRemoveThisWebsite': {
+            let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (playerMap.get(tab.id) == null) {
+                playerMap.set(tab.id, tab.id);
+                chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    function: setVideoSpeed,
+                    args: [speed]
+                });
+            } else {
+                playerMap.delete(tab.id);
+                chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    function: setVideoSpeed,
+                    args: [1]
+                });
+            }
+            break;
+        }
         default: {
             break;
         }
     }
-})
+    return { status: 'ok' };
+}
 
 
 
-
+async function onSiteUpdated(tab) {
+    if (playerMap.get(tab.tabId) == null) {
+        return;
+    }
+    chrome.scripting.executeScript({
+        target: { tabId: tab.tabId },
+        function: setVideoSpeed,
+        args: [speed]
+    });
+}
 async function loadSpeed() {
     const val = await chrome.storage.sync.get('speed')
     if (val.speed === undefined) {
@@ -78,7 +86,7 @@ async function loadSpeed() {
     }
 }
 function setIconText() {
-    chrome.action.setBadgeText({ 'text': `${speed}X` });
+    chrome.action.setBadgeText({ 'text': `${speed}x` });
     chrome.action.setBadgeBackgroundColor({ 'color': '#006b02' })
 }
 
