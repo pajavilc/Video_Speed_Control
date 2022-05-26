@@ -24,7 +24,9 @@ function main() {
 function setupAddingListeners() {
     listenerControl = document.getElementById('addThis');
     chrome.runtime.sendMessage('isThisIn', (response) => {
-        if (!checkResponse(response)) return;
+        if (!checkResponse(response)) {
+            return;
+        }
 
         let el;
         el = document.createElement('div');

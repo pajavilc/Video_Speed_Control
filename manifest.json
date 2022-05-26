@@ -1,7 +1,7 @@
 {
-    "name": "Video_Speed_Control",
-    "version": "1.0",
-    "description": "A simple video speed control",
+    "name": "Video Speed Control",
+    "version": "2.0",
+    "description": "A simple video speed control extension",
     "manifest_version": 3,
     "offline_enabled": true,
     "action": {
@@ -21,7 +21,6 @@
         "128": "./images/image128.png"
     },
     "permissions": [
-        "tabs",
         "storage",
         "activeTab",
         "scripting",
@@ -29,6 +28,32 @@
     ],
     "background": {
         "service_worker": "background.js"
+    },
+    "commands": {
+        "AddToListOrRemoveFromList": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+Q"
+            },
+            "description": "Add/remove current tab to/from list of tabs affected by speed control."
+        },
+        "SetSpeedDefault": {
+            "suggested_key": {
+                "default": "Ctrl+Down"
+            },
+            "description": "Set speed to the default value (1x)"
+        },
+        "SetSpeed1": {
+            "suggested_key": {
+                "default": "Ctrl+End"
+            },
+            "description": "Set speed to a predefined value (speed no. 1)."
+        },
+        "SetSpeed2": {
+            "suggested_key": {
+                "default": "Ctrl+Left"
+            },
+            "description": "Set speed to a predefined value (speed no. 2)."
+        }
     },
     "host_permissions": [
         "https:/\/*\/*"

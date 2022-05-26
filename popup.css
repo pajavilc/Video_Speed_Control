@@ -31,7 +31,12 @@ body {
 
 #nav #change:hover,
 #nav #settings:hover {
-    background-color: rgb(227, 227, 227);
+    background-color: rgb(188, 188, 188);
+}
+
+#nav #change.active,
+#nav #settings.active {
+    background-color: rgb(146, 146, 146);
 }
 
 #container {
@@ -82,9 +87,6 @@ body {
     position: relative;
     margin-bottom: 12px;
 }
-
-
-
 
 .cross {
     width: 1rem;
@@ -203,6 +205,39 @@ h2 {
 
 #addThis .isNotIn:hover {
     background: rgb(0, 138, 0);
+}
+
+#speedShortcuts {
+    width: 100%;
+}
+
+#speedShortcuts label {
+    color: white;
+}
+
+#speedShortcuts>* {
+    font-size: 1rem;
+}
+
+#speedShortcuts select {
+    margin: 5px 0 8px 15px;
+    width: 75px;
+}
+
+select {
+    border: 1px solid;
+    border-color: rgb(148, 148, 148);
+}
+
+#keybindHref {
+    font-size: 1rem;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#keybindHref:hover {
+    color: rgb(152, 152, 152);
 }
 
 ::-webkit-scrollbar {

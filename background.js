@@ -1,19 +1,14 @@
 let speed = 1;
 const playerMap = new Map();
 let whiteList;
+let shortcutSpeeds = {};
 
-chrome.storage.sync.get('speed').then(val => {
-    if (val.speed === undefined) {
-        chrome.storage.sync.set({ 'speed': 1 })
-        speed = 1
-    }
-    else {
-        speed = val.speed;
-    }
-    setIconText()
-})
+loadSpeeds();
+loadShortcutSpeeds()
 chrome.webNavigation.onCompleted.addListener(onSiteUpdated);
 chrome.webNavigation.onHistoryStateUpdated.addListener(onSiteUpdated);
+chrome.tabs.onRemoved.addListener(onTabClosed);
+chrome.commands.onCommand.addListener(processCommand);
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     processMessageData(message, sender).then(response => sendResponse(response));
     return true;
@@ -23,7 +18,7 @@ async function processMessageData(message, sender) {
     switch (message) {
         case 'changedSpeed': {
             await loadSpeed();
-            setIconText()
+            setIconText();
             for (const [key, value] of playerMap.entries()) {
                 chrome.scripting.executeScript({
                     target: { tabId: key },
@@ -35,32 +30,77 @@ async function processMessageData(message, sender) {
         }
         case 'isThisIn': {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            return { status: 'ok', in: (playerMap.get(tab.id) == null ? 'false' : 'true') }
+            const tabId = tab.id;
+            const mappedSite = playerMap.get(tabId);
+            return { status: 'ok', in: (mappedSite == null ? 'false' : 'true') }
         }
         case 'addOrRemoveThisWebsite': {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            if (playerMap.get(tab.id) == null) {
-                playerMap.set(tab.id, tab.id);
-                chrome.scripting.executeScript({
-                    target: { tabId: tab.id },
-                    function: setVideoSpeed,
-                    args: [speed]
-                });
+            const tabId = tab.id;
+            if (playerMap.get(tabId) == null) {
+                updateSpeedOnListedSites(speed)
             } else {
-                playerMap.delete(tab.id);
-                chrome.scripting.executeScript({
-                    target: { tabId: tab.id },
-                    function: setVideoSpeed,
-                    args: [1]
-                });
+                updateSpeedOnListedSites(1);
             }
             break;
+        }
+        case 'shortcutSpeedschanged': {
+            loadShortcutSpeeds();
         }
         default: {
             break;
         }
     }
     return { status: 'ok' };
+}
+
+async function processCommand(command) {
+    switch (command) {
+        case "AddToListOrRemoveFromList": {
+            let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const tabId = tab.id;
+            if (playerMap.get(tabId) == null) {
+                playerMap.set(tabId, tabId);
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    function: setVideoSpeed,
+                    args: [speed]
+                });
+            } else {
+                playerMap.delete(tabId);
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    function: setVideoSpeed,
+                    args: [1]
+                });
+            }
+            return;
+        }
+        case "SetSpeedDefault": {
+            speed = 1;
+            chrome.storage.sync.set({ 'speed': speed });
+            updateSpeedOnListedSites(speed);
+            setIconText()
+            return;
+        }
+        case "SetSpeed1": {
+            speed = shortcutSpeeds.first;
+            chrome.storage.sync.set({ 'speed': speed });
+            updateSpeedOnListedSites(speed);
+            setIconText()
+            return;
+        }
+        case "SetSpeed2": {
+            speed = shortcutSpeeds.second;
+            chrome.storage.sync.set({ 'speed': speed });
+            updateSpeedOnListedSites(speed)
+            setIconText()
+            return;
+        }
+        default: {
+            return;
+        }
+    }
 }
 
 
@@ -100,4 +140,48 @@ function setVideoSpeed(speed) {
             video[i].playbackRate = speed;
         })
     }
+}
+function loadShortcutSpeeds() {
+    chrome.storage.sync.get('shortcuts').then(val => {
+        if (val.shortcuts === undefined) {
+            chrome.storage.sync.set({
+                'shortcuts': {
+                    'first': 1,
+                    'second': 1
+                }
+            })
+            shortcutSpeeds = {
+                'first': 1,
+                'second': 1
+            }
+        }
+        else {
+            shortcutSpeeds = val.shortcuts
+        }
+    })
+}
+
+function loadSpeeds() {
+    chrome.storage.sync.get('speed').then(val => {
+        if (val.speed === undefined) {
+            chrome.storage.sync.set({ 'speed': 1 })
+            speed = 1
+        }
+        else {
+            speed = val.speed;
+        }
+        setIconText()
+    })
+}
+function updateSpeedOnListedSites(speed) {
+    for (const [key, value] of playerMap.entries()) {
+        chrome.scripting.executeScript({
+            target: { tabId: key },
+            function: setVideoSpeed,
+            args: [speed]
+        });
+    }
+}
+function onTabClosed(tabId) {
+    playerMap.delete(tabId);
 }

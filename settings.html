@@ -9,7 +9,7 @@
 <body>
     <div id="nav">
         <div id="change">Main</div>
-        <div id="settings">Settings</div>
+        <div id="settings" class="active">Settings</div>
     </div>
     <div id="container">
         <h2>Speed options</h2>
@@ -28,7 +28,17 @@
         </div>
         <h2>Shortcut settings</h2>
         <hr>
-
+        <div id="speedShortcuts">
+            <label for="first">Speed 1 value</label>
+            <select name="first" id="firstShort">
+            </select>
+            <br>
+            <label for="second">Speed 2 value</label>
+            <select name="second" id="secondShort">
+            </select>
+        </div>
+        <a href="https://obie.ai/blog/how-to-add-and-remove-custom-keyboard-shortcuts-and-hotkeys-for-a-chrome-extension-in-5-seconds-flat/"
+            id="keybindHref" target="_blank">How to rebind keys?</a>
         <button id="restart">Reset All</button>
         <script src="./settings.js"></script>
 </body>
