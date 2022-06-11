@@ -1,6 +1,6 @@
 {
     "name": "Video Speed Control",
-    "version": "2.0",
+    "version": "2.1",
     "description": "A simple video speed control extension",
     "manifest_version": 3,
     "offline_enabled": true,

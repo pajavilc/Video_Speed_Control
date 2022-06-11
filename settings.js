@@ -1,38 +1,43 @@
 let speeds;
 let shortcutSpeeds;
 
-chrome.storage.sync.get('speeds').then(val => {
-    if (val.speeds === undefined) {
-        chrome.storage.sync.set({ 'speeds': [2, 2.5, 3] })
-        speeds = [2, 2.5, 3];
-        setSpeeds(speeds);
-    }
-    else {
-        speeds = val.speeds;
-        setSpeeds(speeds);
-    }
-})
-chrome.storage.sync.get('shortcuts').then(val => {
+function main() {
+    chrome.storage.sync.get('speeds').then(val => {
+        if (val.speeds === undefined) {
+            chrome.storage.sync.set({ 'speeds': [2, 2.5, 3] })
+            speeds = [2, 2.5, 3];
+            setSpeeds(speeds);
+        }
+        else {
+            speeds = val.speeds;
+            setSpeeds(speeds);
+        }
+    })
     chrome.storage.sync.get('shortcuts').then(val => {
-        if (val.shortcuts === undefined) {
-            chrome.storage.sync.set({
-                'shortcuts': {
+        chrome.storage.sync.get('shortcuts').then(val => {
+            if (val.shortcuts === undefined) {
+                chrome.storage.sync.set({
+                    'shortcuts': {
+                        'first': 1,
+                        'second': 1
+                    }
+                })
+                sendShortcutSpeedsModified();
+                shortcutSpeeds = {
                     'first': 1,
                     'second': 1
                 }
-            })
-            sendShortcutSpeedsModified();
-            shortcutSpeeds = {
-                'first': 1,
-                'second': 1
             }
-        }
-        else {
-            shortcutSpeeds = val.shortcuts
-        }
-        setShortcutSpeeds();
+            else {
+                shortcutSpeeds = val.shortcuts
+            }
+            setShortcutSpeeds();
+        })
     })
-})
+    document.getElementById('restart').addEventListener('click', resetAll)
+    document.getElementById('speedFormHolder').appendChild(returnSpeedForm());
+}
+
 function setShortcutSpeeds() {
     const container1 = document.getElementById('firstShort');
     const container2 = document.getElementById('secondShort');
@@ -153,5 +158,6 @@ function checkResponse(response) {
     }
     return true;
 }
-document.getElementById('restart').addEventListener('click', resetAll)
-document.getElementById('speedFormHolder').appendChild(returnSpeedForm());
+
+
+main();

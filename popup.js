@@ -2,6 +2,7 @@ let speeds;
 let speed;
 let speedControls;
 let listenerControl;
+
 function main() {
     chrome.storage.sync.get('speeds').then(val => {
         if (val.speeds === undefined) {

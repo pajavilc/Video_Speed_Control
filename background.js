@@ -3,16 +3,18 @@ const playerMap = new Map();
 let whiteList;
 let shortcutSpeeds = {};
 
-loadSpeeds();
-loadShortcutSpeeds()
-chrome.webNavigation.onCompleted.addListener(onSiteUpdated);
-chrome.webNavigation.onHistoryStateUpdated.addListener(onSiteUpdated);
-chrome.tabs.onRemoved.addListener(onTabClosed);
-chrome.commands.onCommand.addListener(processCommand);
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    processMessageData(message, sender).then(response => sendResponse(response));
-    return true;
-})
+function main() {
+    loadSpeeds();
+    loadShortcutSpeeds()
+    chrome.webNavigation.onCompleted.addListener(onSiteUpdated);
+    chrome.webNavigation.onHistoryStateUpdated.addListener(onSiteUpdated);
+    chrome.tabs.onRemoved.addListener(onTabClosed);
+    chrome.commands.onCommand.addListener(processCommand);
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        processMessageData(message, sender).then(response => sendResponse(response));
+        return true;
+    })
+}
 
 async function processMessageData(message, sender) {
     switch (message) {
@@ -30,18 +32,20 @@ async function processMessageData(message, sender) {
         }
         case 'isThisIn': {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab === null || tab.id === null) {
+                return { status: 'notOk' }
+            }
             const tabId = tab.id;
             const mappedSite = playerMap.get(tabId);
             return { status: 'ok', in: (mappedSite == null ? 'false' : 'true') }
         }
         case 'addOrRemoveThisWebsite': {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            const tabId = tab.id;
-            if (playerMap.get(tabId) == null) {
-                updateSpeedOnListedSites(speed)
-            } else {
-                updateSpeedOnListedSites(1);
+            if (tab === null || tab.id === null) {
+                return { status: 'notOk' }
             }
+            const tabId = tab.id;
+            updateSiteSpeedFromTabId(tabId);
             break;
         }
         case 'shortcutSpeedschanged': {
@@ -58,22 +62,11 @@ async function processCommand(command) {
     switch (command) {
         case "AddToListOrRemoveFromList": {
             let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-            const tabId = tab.id;
-            if (playerMap.get(tabId) == null) {
-                playerMap.set(tabId, tabId);
-                chrome.scripting.executeScript({
-                    target: { tabId: tabId },
-                    function: setVideoSpeed,
-                    args: [speed]
-                });
-            } else {
-                playerMap.delete(tabId);
-                chrome.scripting.executeScript({
-                    target: { tabId: tabId },
-                    function: setVideoSpeed,
-                    args: [1]
-                });
+            if (tab === null || tab.id === null) {
+                return { status: 'notOk' }
             }
+            const tabId = tab.id;
+            updateSiteSpeedFromTabId(tabId);
             return;
         }
         case "SetSpeedDefault": {
@@ -141,6 +134,7 @@ function setVideoSpeed(speed) {
         })
     }
 }
+
 function loadShortcutSpeeds() {
     chrome.storage.sync.get('shortcuts').then(val => {
         if (val.shortcuts === undefined) {
@@ -185,3 +179,22 @@ function updateSpeedOnListedSites(speed) {
 function onTabClosed(tabId) {
     playerMap.delete(tabId);
 }
+function updateSiteSpeedFromTabId(tabId) {
+    if (playerMap.get(tabId) == null) {
+        playerMap.set(tabId, tabId);
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            function: setVideoSpeed,
+            args: [speed]
+        });
+    } else {
+        playerMap.delete(tabId);
+        chrome.scripting.executeScript({
+            target: { tabId: tabId },
+            function: setVideoSpeed,
+            args: [1]
+        });
+    }
+}
+
+main();
